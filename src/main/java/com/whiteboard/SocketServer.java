@@ -4,8 +4,6 @@ package com.whiteboard;
 import cn.hutool.core.util.StrUtil;
 import com.whiteboard.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -35,12 +33,12 @@ public class SocketServer {
      * 打开连接时触发事件
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("userId") String userId) throws IOException{
-        if(this.redisTemplate == null){
+    public void onOpen(Session session, @PathParam("userId") String userId) throws IOException {
+        if (this.redisTemplate == null) {
             redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
         }
         this.userId = userId;
-        if(!userMap.containsKey(userId)){
+        if (!userMap.containsKey(userId)) {
             List<String> range = redisTemplate.opsForList().range(key, 0, -1);
             for (String s : range) {
                 session.getBasicRemote().sendText(s);
@@ -59,13 +57,10 @@ public class SocketServer {
 
         redisTemplate.opsForList().leftPush(key, message);
         for (Map.Entry<String, Session> entry : userMap.entrySet()) {
-            if(!StrUtil.equals(session.getRequestParameterMap().get("userId").get(0), entry.getKey())){
+            if (!StrUtil.equals(session.getRequestParameterMap().get("userId").get(0), entry.getKey())) {
                 entry.getValue().getBasicRemote().sendText(message);
             }
         }
-
-        // 向全体在线成员推送这条消息
-//        sendMessageFromOneToAll(userId, message);
     }
 
     /**
@@ -86,33 +81,4 @@ public class SocketServer {
         error.printStackTrace();
     }
 
-    /**
-     * 给某个用户发送消息
-     */
-    public void sendMessageToOne(Long userId, String message) {
-
-
-    }
-
-    /**
-     * 给所有在线用户发送消息
-     */
-    public void sendMessageToAll(String message) {
-
-    }
-
-    /**
-     * 由某一用户向全体在线用户推送消息
-     * @param userId 哪个用户
-     * @param message 什么消息
-     */
-    public void sendMessageFromOneToAll(String userId, String message) {
-        userMap.forEach((id, session) -> {
-            try {
-                session.getBasicRemote().sendText("用户" + userId + "发消息来啦：" + message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
 }
