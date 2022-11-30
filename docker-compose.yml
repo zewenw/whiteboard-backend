@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  whiteboard:
+    build: .
+    environment:
+      spring.redis.host: redis
+    depends_on:
+      - redis
+    ports:
+      - "10001:10001"
+  redis:
+    image: "redis:alpine"
