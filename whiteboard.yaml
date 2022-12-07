@@ -19,6 +19,12 @@ spec:
           image: whiteboard:v1
           ports:
             - containerPort: 10001
+          env: #注入容器内的环境变量
+            - name: redis.host
+              valueFrom:
+                configMapKeyRef:
+                  name: redis-configmap
+                  key: redis_url
 ---
 apiVersion: v1
 kind: Service
