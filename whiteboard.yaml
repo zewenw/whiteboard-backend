@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: whiteboard
-          image: whiteboard:v1
+          image: owen8527/whiteboard:v1
           ports:
             - containerPort: 10001
           env:
